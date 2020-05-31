@@ -27,7 +27,7 @@ public class UserController {
         return new ResponseEntity<>(DtoUser.fromUser(newUser), HttpStatus.CREATED);
     }
 
-    @GetMapping(value = "/log-in")
+    @PostMapping(value = "/log-in")
     public ResponseEntity<?> login(@RequestBody DtoUserAuth userAuth) {
         UserValidator.validate(userAuth);
 
