@@ -2,26 +2,31 @@ package com.duminska.ultimatetasklist.config.token;
 
 import com.duminska.ultimatetasklist.user.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 
-@Service
+@Component
 public class JwtUserDetailsService implements UserDetailsService {
 
     @Autowired
     UserDao userDao;
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        com.duminska.ultimatetasklist.user.User user = userDao.getByEmail(email);
+    public JwtUser loadUserByUsername(String s) throws UsernameNotFoundException {
+
+        com.duminska.ultimatetasklist.user.User user = userDao.getByEmail(s);
         if (user == null) {
-            throw new UsernameNotFoundException("No user with such email");
+            throw new UsernameNotFoundException(s);
         }
-        return new User(user.getEmail(), user.getPassword(), new ArrayList<>());
+        return JwtUser.builder()
+                .email(user.getEmail())
+                .password(user.getPassword())
+                .id(user.getId())
+                .authorities(new ArrayList<>())
+                .build();
     }
+
 }

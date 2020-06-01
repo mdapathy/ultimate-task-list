@@ -57,7 +57,6 @@ public class UserDao {
             ps.setString(3, user.getActivationLink());
             return ps;
         }, keyHolder);
-        System.out.println(keyHolder.getKeys());
         user.setId(Objects.requireNonNull(keyHolder.getKeys()).get("user_id").toString());
         user.setAccCreationDate((Date) Objects.requireNonNull(keyHolder.getKeys()).get("acc_creation_date"));
 

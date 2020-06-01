@@ -2,47 +2,55 @@ package com.duminska.ultimatetasklist.config.security;
 
 import com.duminska.ultimatetasklist.config.Constants;
 import com.duminska.ultimatetasklist.config.token.JwtAuthenticationEntryPoint;
-import com.duminska.ultimatetasklist.config.token.JwtRequestFilter;
+import com.duminska.ultimatetasklist.config.token.JwtConfigurer;
+import com.duminska.ultimatetasklist.config.token.JwtTokenProvider;
 import com.duminska.ultimatetasklist.config.token.JwtUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableGlobalMethodSecurity(
+        securedEnabled = true,
+        jsr250Enabled = true,
+        prePostEnabled = true
+)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
-    @Autowired
-    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
+    final private JwtAuthenticationEntryPoint unauthorizedHandler;
+    final private JwtUserDetailsService jwtUserDetailsService;
+    final private BCryptPasswordEncoder bCryptPasswordEncoder;
+    final private JwtTokenProvider jwtTokenProvider;
 
     @Autowired
-    private JwtUserDetailsService jwtUserDetailsService;
-
-    @Autowired
-    private JwtRequestFilter jwtRequestFilter;
-
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(jwtUserDetailsService);
+    public WebSecurityConfig(JwtAuthenticationEntryPoint unauthorizedHandler, JwtUserDetailsService jwtUserDetailsService,
+                                 BCryptPasswordEncoder bCryptPasswordEncoder, JwtTokenProvider jwtTokenProvider) {
+        this.unauthorizedHandler = unauthorizedHandler;
+        this.jwtUserDetailsService = jwtUserDetailsService;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    @Bean
-    public JwtAuthenticationEntryPoint jwtAuthenticationEntryPointBean() throws Exception {
-        return new JwtAuthenticationEntryPoint();
+    @Override
+    protected void configure(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
+        authenticationManagerBuilder.userDetailsService(jwtUserDetailsService).passwordEncoder(bCryptPasswordEncoder);
     }
 
-    @Bean
+    @Bean(BeanIds.AUTHENTICATION_MANAGER)
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
@@ -51,17 +59,21 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-                .csrf().disable()     // off csrf
-                .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint)// add Exception Handler
+                .csrf().disable()
+                .exceptionHandling()
+                .authenticationEntryPoint(unauthorizedHandler)// add Exception Handler
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // without session
                 .and()
-                .authorizeRequests().requestMatchers(CorsUtils::isPreFlightRequest)
-                .permitAll()
+                .authorizeRequests()
                 .antMatchers(Constants.SECURE_USER_URLS).permitAll()
+                /*.requestMatchers(CorsUtils::isPreFlightRequest)*/
+                .anyRequest()
+                .authenticated()
                 .and()
-                .cors();
+                .cors()
+                .and().apply(new JwtConfigurer(jwtTokenProvider));
     }
 
     @Bean

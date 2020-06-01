@@ -1,9 +1,9 @@
 package com.duminska.ultimatetasklist.user;
 
-import com.duminska.ultimatetasklist.config.token.JwtTokenUtil;
-import com.duminska.ultimatetasklist.config.token.JwtUserDetailsService;
+import com.duminska.ultimatetasklist.config.token.JwtTokenProvider;
 import com.duminska.ultimatetasklist.exception.ValidationException;
 import com.duminska.ultimatetasklist.mail.MailService;
+import com.duminska.ultimatetasklist.projects.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,24 +14,25 @@ import java.util.Date;
 @Service
 public class UserService {
 
-    private final JwtTokenUtil jwtTokenUtil;
+    private final JwtTokenProvider jwtTokenProvider;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final UserDao userDao;
-    private final JwtUserDetailsService userDetailsService;
     private final MailService mailService;
+    private final ProjectService projectService;
+
 
     @Autowired
     public UserService(UserDao userDao,
                        BCryptPasswordEncoder bCryptPasswordEncoder,
-                       JwtTokenUtil jwtTokenUtil,
-                       JwtUserDetailsService userDetailsService,
-                       MailService mailService
+                       JwtTokenProvider jwtTokenProvider,
+                       MailService mailService,
+                       ProjectService projectService
     ) {
         this.userDao = userDao;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-        this.jwtTokenUtil = jwtTokenUtil;
-        this.userDetailsService = userDetailsService;
+        this.jwtTokenProvider = jwtTokenProvider;
         this.mailService = mailService;
+        this.projectService = projectService;
     }
 
 
@@ -72,8 +73,8 @@ public class UserService {
             throw new ValidationException("Incorrect password");
         }
 
-        return jwtTokenUtil.generateToken(userDetailsService
-                .loadUserByUsername(dtoUser.getEmail()));
+
+        return jwtTokenProvider.provideToken(dtoUser.getEmail());
 
     }
 
@@ -85,16 +86,17 @@ public class UserService {
 
         } else if (user.isActivated()) {
             throw new ValidationException("User is already activated");
-        } else  {
+        } else {
             Calendar calendar = Calendar.getInstance();
             calendar.add(Calendar.DATE, -1);
-            if (user.getAccCreationDate().before(calendar.getTime())){
+            if (user.getAccCreationDate().before(calendar.getTime())) {
                 userDao.deleteUserById(user.getId());
                 throw new ValidationException("The link has expired. Sign up again.");
             }
         }
 
         userDao.activateUser(user.getId());
+        projectService.initProjectsForNewUser(user.getId());
     }
 
 
