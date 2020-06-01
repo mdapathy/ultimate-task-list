@@ -100,8 +100,8 @@ public class UserService {
         }
 
         userDao.activateUser(user.getId());
-        projectService.initProjectsForNewUser(user.getId());
-        taskService.initTasksForNewUser(user.getId());
+        String projectId = projectService.initProjectsForNewUser(user.getId());
+        taskService.initTasksForNewUser(user.getId(), projectId);
 
     }
 

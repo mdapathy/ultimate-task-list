@@ -21,12 +21,12 @@ public class TaskService {
         this.taskDao = taskDao;
     }
 
-    public void initTasksForNewUser(String userId) {
-        taskDao.initTasksForNewUser(userId);
+    public void initTasksForNewUser(String userId, String projectId) {
+        taskDao.initTasksForNewUser(userId, projectId);
     }
 
 
-    List<Task> getAllTasksByProject(String projectId, String userId) {
+    public List<Task> getAllTasksByProject(String projectId, String userId) {
         if (projectService.getProjectById(projectId, userId) == null) {
             throw new ValidationException("No such project");
         }
@@ -41,12 +41,15 @@ public class TaskService {
         taskDao.deleteTaskById(taskId);
     }
 
-    void editTask() {
-        //TODO
+    void editTask(DtoTask dtoTask, String userId) {
+        checkTask(dtoTask, userId);
+        taskDao.editTaskById(DtoTask.toTask(dtoTask));
     }
 
-    void addTask() {
-        //TODO
+    DtoTask addTask(DtoTask dtoTask, String userId) {
+        checkTask(dtoTask, userId);
+        Task taskAdd = DtoTask.toTask(dtoTask);
+        return DtoTask.fromTask(taskDao.addTask(taskAdd));
     }
 
     void markTaskAsDoneById(String taskId, String userId) {
@@ -57,8 +60,18 @@ public class TaskService {
         taskDao.markTaskAsDoneById(taskId);
     }
 
-    Task getTaskById(String taskId) {
+    private Task getTaskById(String taskId) {
         return taskDao.getTaskById(taskId);
+    }
+
+    private void checkTask(DtoTask dtoTask, String userId) {
+        if (!dtoTask.getUserId().equals(userId)) {
+            throw new ValidationException("Tried to assign task to another user");
+        }
+        if (projectService.getProjectById(dtoTask.getProjectId(), userId) == null) {
+            throw new ValidationException("No such project");
+
+        }
     }
 
 }
