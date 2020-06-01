@@ -1,5 +1,6 @@
 package com.duminska.ultimatetasklist.tasks;
 
+import com.duminska.ultimatetasklist.config.constants.SqlConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.List;
 import java.util.Objects;
 
@@ -27,8 +29,7 @@ public class TaskDao {
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection
                     .prepareStatement(
-                            "insert into tasks (user_id, name, priority_id, project_id)\n" +
-                                    "values (uuid(?), ?, 4, uuid(?));", Statement.RETURN_GENERATED_KEYS);
+                            SqlConstants.TASK_INIT_TASKS, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, userId);
             ps.setString(2, "Complete this task");
             ps.setString(3, projectId);
@@ -40,6 +41,10 @@ public class TaskDao {
             ps.setString(1, userId);
             ps.setString(2, "Create a new task");
             ps.setString(3, projectId);
+            ps.executeUpdate();
+            ps.setString(1, userId);
+            ps.setString(2, "Complete this task");
+            ps.setString(3, projectId);
             return ps;
         }, keyHolder);
 
@@ -47,10 +52,7 @@ public class TaskDao {
 
     void editTaskById(Task task) {
         jdbcTemplate.update(
-                "update tasks set name = ?, priority_id = ?, " +
-                        "project_id = ?, parent_task_id = ?, first_deadline_date = ?," +
-                        "recurring_time = ?, times_postponed = ?" +
-                        "where task_id=uuid(?)", task.getTaskId());
+                SqlConstants.TASK_EDIT_TASK, task.getTaskId());
     }
 
     Task addTask(Task task) {
@@ -59,19 +61,26 @@ public class TaskDao {
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection
                     .prepareStatement(
-                            "insert into tasks (user_id, name, priority_id, " +
-                                    "project_id, parent_task_id, first_deadline_date," +
-                                    " recurring_time, times_postponed, is_done) " +
-                                    "values (uuid(?),?,uuid(?),uuid(?),uuid(?),?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, task.getTaskId());
+                            SqlConstants.TASK_ADD_TASK, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, task.getUserId());
             ps.setString(2, task.getName());
-            ps.setString(3, task.getPriorityId());
+            ps.setInt(3, task.getPriorityId());
             ps.setString(4, task.getProjectId());
             ps.setString(5, task.getParentTaskId());
-            ps.setTimestamp(6, new Timestamp(task.getDeadline().getTime()));
-            ps.setTimestamp(7, new Timestamp(task.getRecurring().getTime()));
+            if(task.getDeadline() == null) {
+                ps.setNull(6, Types.NULL);
+            } else {
+                ps.setTimestamp(6, new Timestamp(task.getDeadline().getTime()));
+
+            }
+            if(task.getRecurring() == null) {
+                ps.setNull(7, Types.NULL);
+            } else {
+                ps.setTimestamp(7, new Timestamp(task.getRecurring().getTime()));
+            }
             ps.setInt(8, task.getTimesPostponed());
             ps.setBoolean(9, task.isDone());
+            System.out.println(ps.toString());
             return ps;
         }, keyHolder);
         task.setTaskId(Objects.requireNonNull(keyHolder.getKeys()).get("task_id").toString());
@@ -80,27 +89,22 @@ public class TaskDao {
 
     List<Task> getAllTasksByProject(String projectId) {
         return jdbcTemplate.query(
-                "select task_id, user_id, name, priority_id, " +
-                        "project_id, parent_task_id, first_deadline_date," +
-                        " recurring_time, times_postponed, is_done, " +
-                        "priorities.color as color from tasks left join " +
-                        "priorities on tasks.priority_id = priorities.value " +
-                        "where project_id=uuid(?)", new Object[]{projectId},
+                SqlConstants.TASK_GET_TASKS_BY_PROJECT, new Object[]{projectId},
                 new TaskMapper()
         );
     }
 
     void deleteTaskById(String taskId) {
-        jdbcTemplate.update("delete from tasks  where task_id=uuid(?)", taskId);
+        jdbcTemplate.update(SqlConstants.TASK_DELETE_TASK, taskId);
     }
 
     void markTaskAsDoneById(String taskId) {
-        jdbcTemplate.update("UPDATE tasks set is_done = true where task_id=uuid(?)", taskId);
+        jdbcTemplate.update(SqlConstants.TASK_MARK_DONE_TASK, taskId);
     }
 
     Task getTaskById(String taskId) {
         return jdbcTemplate.queryForObject(
-                "select task_id, user_id, name, priority_id, project_id, parent_task_id, first_deadline_date, recurring_time, times_postponed, is_done, priorities.color as color from tasks left join priorities on tasks.priority_id = priorities.value where task_id=uuid(?)", new Object[]{taskId}, new TaskMapper()
+                SqlConstants.TASK_GET_BY_ID, new Object[]{taskId}, new TaskMapper()
         );
     }
 

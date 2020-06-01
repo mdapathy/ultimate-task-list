@@ -1,6 +1,6 @@
 package com.duminska.ultimatetasklist.config.security;
 
-import com.duminska.ultimatetasklist.config.Constants;
+import com.duminska.ultimatetasklist.config.constants.Constants;
 import com.duminska.ultimatetasklist.config.token.JwtAuthenticationEntryPoint;
 import com.duminska.ultimatetasklist.config.token.JwtConfigurer;
 import com.duminska.ultimatetasklist.config.token.JwtTokenProvider;

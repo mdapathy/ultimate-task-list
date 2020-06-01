@@ -1,4 +1,4 @@
-package com.duminska.ultimatetasklist.config;
+package com.duminska.ultimatetasklist.config.constants;
 
 public class Constants {
     public static final String USER_URLS = "/api/user";
