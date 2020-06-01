@@ -1,5 +1,6 @@
 package com.duminska.ultimatetasklist.projects;
 
+import com.duminska.ultimatetasklist.config.constants.SqlConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -26,8 +27,7 @@ public class ProjectDao {
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection
                     .prepareStatement(
-                            "insert into projects (user_id, name) " +
-                                    "values (uuid(?), 'Inbox')", Statement.RETURN_GENERATED_KEYS);
+                            SqlConstants.PROJECT_INIT_PROJECT, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, userId);
             return ps;
         }, keyHolder);
@@ -42,8 +42,7 @@ public class ProjectDao {
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection
                     .prepareStatement(
-                            "insert into projects (user_id, name, parent_project_id, color, favourite) " +
-                                    "values (uuid(?), ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+                            SqlConstants.PROJECT_ADD_PROJECT, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, project.getUserId());
             ps.setString(2, project.getName());
             ps.setString(3, project.getParentProjectId());
@@ -57,14 +56,12 @@ public class ProjectDao {
     }
 
     void deleteProject(String projectId) {
-        jdbcTemplate.update(
-                "delete from projects where project_id=uuid(?)", projectId);
+        jdbcTemplate.update(SqlConstants.PROJECT_DELETE_PROJECT, projectId);
 
     }
 
     void editProject(Project project) {
-        jdbcTemplate.update("update projects  set name = ?," +
-                        " parent_project_id =? , color = ?, favourite = ? where project_id = uuid(?) and user_id = uuid(?)"
+        jdbcTemplate.update(SqlConstants.PROJECT_EDIT_PROJECT
                 , project.getName(), project.getParentProjectId(),
                 project.getUserId(),
                 project.getColor(),
@@ -75,7 +72,7 @@ public class ProjectDao {
 
     List<Project> getUserProjects(String userId) {
         try {
-            return jdbcTemplate.query("select p.user_id, p.project_id, p.name, p.color, p.parent_project_id, p.favourite,  p.user_id, p.project_id, p.name, p.color, p.parent_project_id, p.favourite from projects p where user_id=uuid(?) ", new Object[]{userId}, new ProjectMapper());
+            return jdbcTemplate.query(SqlConstants.PROJECT_GET_USER_PROJECTS, new Object[]{userId}, new ProjectMapper());
         } catch (EmptyResultDataAccessException | NullPointerException e) {
             return null;
         }
@@ -84,7 +81,7 @@ public class ProjectDao {
 
     Project getProjectById(String projectId) {
         try {
-            return jdbcTemplate.queryForObject("select p.user_id, p.project_id, p.name, p.color, p.parent_project_id, p.favourite,  p.user_id, p.project_id, p.name, p.color, p.parent_project_id, p.favourite from projects p where project_id=uuid(?) ", new Object[]{projectId}, new ProjectMapper());
+            return jdbcTemplate.queryForObject(SqlConstants.PROJECT_GET_PROJECT_BY_ID, new Object[]{projectId}, new ProjectMapper());
         } catch (EmptyResultDataAccessException | NullPointerException e) {
             return null;
         }
@@ -93,7 +90,7 @@ public class ProjectDao {
 
     List<Project> getFavouriteProjects(String userId) {
         try {
-            return jdbcTemplate.query("select p.user_id, p.project_id, p.name, p.color, p.parent_project_id, p.favourite,  p.user_id, p.project_id, p.name, p.color, p.parent_project_id, p.favourite from projects p where user_id=uuid(?) and favourite=true", new Object[]{userId}, new ProjectMapper());
+            return jdbcTemplate.query(SqlConstants.PROJECT_GET_FAVOURITE_PROJECTS, new Object[]{userId}, new ProjectMapper());
         } catch (EmptyResultDataAccessException | NullPointerException e) {
             return null;
         }

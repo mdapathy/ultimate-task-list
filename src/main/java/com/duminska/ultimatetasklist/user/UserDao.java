@@ -1,5 +1,6 @@
 package com.duminska.ultimatetasklist.user;
 
+import com.duminska.ultimatetasklist.config.constants.SqlConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -21,13 +22,10 @@ public class UserDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-
     public User getByEmail(String email) {
         try {
             return jdbcTemplate.queryForObject(
-                    "SELECT user_id, email, password," +
-                            "is_activated, recovery_link, acc_creation_date, " +
-                            "activation_link, recovery_sent_date from users WHERE email=?", new Object[]{email}, new UserMapper());
+                    SqlConstants.USER_GET_BY_EMAIL, new Object[]{email}, new UserMapper());
         } catch (NullPointerException | EmptyResultDataAccessException e) {
             return null;
         }
@@ -37,9 +35,7 @@ public class UserDao {
     public User getByActivationLink(String link) {
         try {
             return jdbcTemplate.queryForObject(
-                    "SELECT user_id, email, password," +
-                            "is_activated, recovery_link, acc_creation_date, " +
-                            "activation_link, recovery_sent_date from users WHERE activation_link=?", new Object[]{link}, new UserMapper());
+                    SqlConstants.USER_GET_BY_ACTIVATION_LINK, new Object[]{link}, new UserMapper());
         } catch (NullPointerException | EmptyResultDataAccessException e) {
             return null;
         }
@@ -51,7 +47,7 @@ public class UserDao {
 
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection
-                    .prepareStatement("INSERT INTO users (email, password, activation_link) values(?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+                    .prepareStatement(SqlConstants.USER_CREATE_USER, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, user.getEmail());
             ps.setString(2, user.getPassword());
             ps.setString(3, user.getActivationLink());
@@ -64,12 +60,12 @@ public class UserDao {
     }
 
     void activateUser(String userId) {
-        jdbcTemplate.update("UPDATE users SET is_activated = true where user_id = uuid(?)", userId);
+        jdbcTemplate.update(SqlConstants.USER_ACTIVATE_USER, userId);
     }
 
 
     void deleteUserById(String userId) {
-        jdbcTemplate.update("DELETE from users where user_id = uuid(?)", userId);
+        jdbcTemplate.update(SqlConstants.USER_DELETE_USER, userId);
     }
 
 
