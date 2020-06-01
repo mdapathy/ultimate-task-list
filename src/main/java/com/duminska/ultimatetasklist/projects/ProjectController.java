@@ -2,6 +2,7 @@ package com.duminska.ultimatetasklist.projects;
 
 import com.duminska.ultimatetasklist.config.Constants;
 import com.duminska.ultimatetasklist.config.security.AuthenticationFacade;
+import com.duminska.ultimatetasklist.tasks.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,12 +15,15 @@ public class ProjectController {
 
     final private ProjectService projectService;
     final private AuthenticationFacade authenticationFacade;
+    final private TaskService taskService;
 
     @Autowired
     public ProjectController(ProjectService projectService,
-                             AuthenticationFacade authenticationFacade) {
+                             AuthenticationFacade authenticationFacade,
+                             TaskService taskService) {
         this.projectService = projectService;
         this.authenticationFacade = authenticationFacade;
+        this.taskService = taskService;
     }
 
     @GetMapping("/get-all")
@@ -36,7 +40,7 @@ public class ProjectController {
                 , HttpStatus.OK);
     }
 
-    @GetMapping("/{projectId}")
+    @GetMapping("/{projectId}/get")
     public ResponseEntity<?> getProject(@PathVariable("projectId") String id) {
         return new ResponseEntity<>(
                 projectService.getProjectById(id, authenticationFacade.getUserId())
@@ -44,16 +48,18 @@ public class ProjectController {
     }
 
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<?> addProject(DtoProject dtoProject) {
+        ProjectValidator.validate(dtoProject);
         return new ResponseEntity<>(
                 projectService.addProject(dtoProject, authenticationFacade.getUserId())
                 , HttpStatus.OK);
     }
 
 
-    @PutMapping
+    @PutMapping("/edit")
     public ResponseEntity<?> editProject(DtoProject dtoProject) {
+        ProjectValidator.validate(dtoProject);
         projectService.editProject(dtoProject, authenticationFacade.getUserId());
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -63,6 +69,12 @@ public class ProjectController {
     public ResponseEntity<?> deleteProject(@PathVariable("projectId") String id) {
         projectService.deleteProject(id, authenticationFacade.getUserId());
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+
+    @GetMapping("/{projectId}/tasks")
+    public ResponseEntity<?> getAllTasksByProject(@PathVariable String projectId) {
+        return new ResponseEntity<>(taskService.getAllTasksByProject(projectId, authenticationFacade.getUserId()), HttpStatus.OK);
     }
 
 

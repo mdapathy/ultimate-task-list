@@ -21,14 +21,22 @@ public class ProjectDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    void initProjectsForNewUser(String userId) {
-        jdbcTemplate.update(
-                "insert into projects (user_id, name) " +
-                        "values (?, 'Inbox')", userId);
+    String initProjectsForNewUser(String userId) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection
+                    .prepareStatement(
+                            "insert into projects (user_id, name) " +
+                                    "values (?, 'Inbox')", Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, userId);
+            return ps;
+        }, keyHolder);
+
+        return Objects.requireNonNull(keyHolder.getKeys()).get("project_id").toString();
 
     }
 
-    DtoProject addProject(DtoProject project) {
+    Project addProject(Project project) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
@@ -54,7 +62,7 @@ public class ProjectDao {
 
     }
 
-    void editProject(DtoProject project) {
+    void editProject(Project project) {
         jdbcTemplate.update("update projects  set name = ?," +
                         " parent_project_id =? , color = ?, favourite = ? where project_id = ? and user_id = ?"
                 , project.getName(), project.getParentProjectId(),

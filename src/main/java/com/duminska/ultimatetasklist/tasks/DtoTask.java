@@ -22,4 +22,38 @@ public class DtoTask {
     private Date recurring;
     private int timesPostponed;
     private boolean isDone;
+
+
+    public static Task toTask(DtoTask dtoTask) {
+        return Task.builder()
+                .color(dtoTask.getColor())
+                .deadline(dtoTask.getDeadline())
+                .isDone(dtoTask.isDone())
+                .name(dtoTask.getName())
+                .parentTaskId(dtoTask.getParentTaskId())
+                .priorityId(dtoTask.getPriorityId())
+                .projectId(dtoTask.getProjectId())
+                .recurring(dtoTask.getRecurring())
+                .timesPostponed(dtoTask.getTimesPostponed())
+                .userId(dtoTask.getUserId())
+                .build();
+
+    }
+
+
+    public static DtoTask fromTask(Task task) {
+        return DtoTask.builder()
+                .color(task.getColor())
+                .deadline(task.getDeadline())
+                .isDone(task.isDone())
+                .name(task.getName())
+                .parentTaskId(task.getParentTaskId())
+                .priorityId(task.getPriorityId())
+                .projectId(task.getProjectId())
+                .recurring(task.getRecurring())
+                .timesPostponed(task.getTimesPostponed())
+                .userId(task.getUserId())
+                .build();
+
+    }
 }

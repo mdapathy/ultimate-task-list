@@ -5,6 +5,8 @@ import com.duminska.ultimatetasklist.projects.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class TaskService {
 
@@ -19,36 +21,57 @@ public class TaskService {
         this.taskDao = taskDao;
     }
 
-    void initTasksForNewUser(String userId) {
-        taskDao.initTasksForNewUser(userId);
+    public void initTasksForNewUser(String userId, String projectId) {
+        taskDao.initTasksForNewUser(userId, projectId);
     }
 
 
-    void getAllTasksByProject(String projectId, String userId) {
+    public List<Task> getAllTasksByProject(String projectId, String userId) {
         if (projectService.getProjectById(projectId, userId) == null) {
             throw new ValidationException("No such project");
         }
-        taskDao.getAllTasksByProject(projectId);
+        return taskDao.getAllTasksByProject(projectId);
     }
 
-    void deleteTaskById(String projectId, String userId) {
+    void deleteTaskById(String taskId, String userId) {
+        if (!getTaskById(taskId).getUserId().equals(userId)) {
+            throw new ValidationException("Task belongs to another user");
 
+        }
+        taskDao.deleteTaskById(taskId);
     }
 
-    void editTaskById() {
-        //TODO
+    void editTask(DtoTask dtoTask, String userId) {
+        checkTask(dtoTask, userId);
+        taskDao.editTaskById(DtoTask.toTask(dtoTask));
     }
 
-    void addTaskById() {
-        //TODO
+    DtoTask addTask(DtoTask dtoTask, String userId) {
+        checkTask(dtoTask, userId);
+        Task taskAdd = DtoTask.toTask(dtoTask);
+        return DtoTask.fromTask(taskDao.addTask(taskAdd));
     }
 
-    void markTaskAsDoneById() {
-        //TODO
+    void markTaskAsDoneById(String taskId, String userId) {
+        if (!getTaskById(taskId).getUserId().equals(userId)) {
+            throw new ValidationException("Task belongs to another user");
+
+        }
+        taskDao.markTaskAsDoneById(taskId);
     }
 
-    Task getTaskById(String taskId) {
+    private Task getTaskById(String taskId) {
         return taskDao.getTaskById(taskId);
+    }
+
+    private void checkTask(DtoTask dtoTask, String userId) {
+        if (!dtoTask.getUserId().equals(userId)) {
+            throw new ValidationException("Tried to assign task to another user");
+        }
+        if (projectService.getProjectById(dtoTask.getProjectId(), userId) == null) {
+            throw new ValidationException("No such project");
+
+        }
     }
 
 }

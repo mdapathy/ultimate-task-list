@@ -17,15 +17,16 @@ public class ProjectService {
         this.projectDao = projectDao;
     }
 
-    public void initProjectsForNewUser(String userId) {
-        projectDao.initProjectsForNewUser(userId);
+    public String initProjectsForNewUser(String userId) {
+        return projectDao.initProjectsForNewUser(userId);
     }
 
     DtoProject addProject(DtoProject dtoProject, String userId) {
         if (!dtoProject.getUserId().equals(userId)) {
             throw new ValidationException("Project assigned to another user");
         }
-        return projectDao.addProject(dtoProject);
+
+        return DtoProject.fromProject(projectDao.addProject(DtoProject.toProject(dtoProject)));
     }
 
     void deleteProject(String projectId, String userId) {
@@ -49,7 +50,7 @@ public class ProjectService {
             throw new ValidationException("Project belongs to another user");
         }
 
-        projectDao.editProject(project);
+        projectDao.editProject(DtoProject.toProject(project));
 
     }
 
