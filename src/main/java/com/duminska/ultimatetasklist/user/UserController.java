@@ -31,7 +31,6 @@ public class UserController {
         UserValidator.validate(userAuth);
 
         String token = userService.loginUser(userAuth);
-
         UserLoginSuccessResponse successResponse = UserLoginSuccessResponse.builder()
                 .token(token)
                 .success(true).build();
