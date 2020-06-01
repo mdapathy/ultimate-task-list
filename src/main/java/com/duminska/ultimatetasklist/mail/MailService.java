@@ -17,11 +17,11 @@ public class MailService {
 
     public void sendSimpleMessage(String email, String link) throws UnirestException {
         Unirest.post(url)
-                .basicAuth("api", key) //TODO HIDE THESE TWO
+                .basicAuth("api", key)
                 .queryString("from", "UTaskList Support <support@ultimate-task-list.com>")
                 .queryString("to", email)
                 .queryString("subject", "Ultimate Task List account activation")
-                .queryString("text", String.format("Follow this link to activate your account %s/?key=%s", Constants.ACTIVATION_URL, link))
+                .queryString("text", String.format("Follow this link to activate your account %s", Constants.ACTIVATION_URL, link))
                 .asJson().getBody();
 
     }

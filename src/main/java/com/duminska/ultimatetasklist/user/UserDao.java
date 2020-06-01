@@ -68,4 +68,10 @@ public class UserDao {
         jdbcTemplate.update("UPDATE users SET is_activated = true where user_id = uuid(?)", userId);
     }
 
+
+    void deleteUserById(String userId) {
+        jdbcTemplate.update("DELETE from users where user_id = uuid(?)", userId);
+    }
+
+
 }

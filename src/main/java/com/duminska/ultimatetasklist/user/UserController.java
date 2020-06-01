@@ -18,7 +18,6 @@ public class UserController {
         this.userService = userService;
     }
 
-
     @PostMapping(value = "/sign-up")
     public ResponseEntity<?> signUpUser(@RequestBody DtoUserAuth user) {
         UserValidator.validate(user);
