@@ -39,7 +39,7 @@ public class UserController {
         return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
-    @PutMapping("/activate")
+    @PostMapping("/activate")
     public ResponseEntity<?> activate(@RequestParam("key") String link) {
         userService.activateUser(link);
         return new ResponseEntity<>(HttpStatus.OK);
