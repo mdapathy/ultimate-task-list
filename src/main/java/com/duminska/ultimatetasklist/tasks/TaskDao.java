@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.List;
 import java.util.Objects;
 
@@ -40,6 +41,10 @@ public class TaskDao {
             ps.setString(1, userId);
             ps.setString(2, "Create a new task");
             ps.setString(3, projectId);
+            ps.executeUpdate();
+            ps.setString(1, userId);
+            ps.setString(2, "Complete this task");
+            ps.setString(3, projectId);
             return ps;
         }, keyHolder);
 
@@ -57,15 +62,25 @@ public class TaskDao {
             PreparedStatement ps = connection
                     .prepareStatement(
                             SqlConstants.TASK_ADD_TASK, Statement.RETURN_GENERATED_KEYS);
-            ps.setString(1, task.getTaskId());
+            ps.setString(1, task.getUserId());
             ps.setString(2, task.getName());
-            ps.setString(3, task.getPriorityId());
+            ps.setInt(3, task.getPriorityId());
             ps.setString(4, task.getProjectId());
             ps.setString(5, task.getParentTaskId());
-            ps.setTimestamp(6, new Timestamp(task.getDeadline().getTime()));
-            ps.setTimestamp(7, new Timestamp(task.getRecurring().getTime()));
+            if(task.getDeadline() == null) {
+                ps.setNull(6, Types.NULL);
+            } else {
+                ps.setTimestamp(6, new Timestamp(task.getDeadline().getTime()));
+
+            }
+            if(task.getRecurring() == null) {
+                ps.setNull(7, Types.NULL);
+            } else {
+                ps.setTimestamp(7, new Timestamp(task.getRecurring().getTime()));
+            }
             ps.setInt(8, task.getTimesPostponed());
             ps.setBoolean(9, task.isDone());
+            System.out.println(ps.toString());
             return ps;
         }, keyHolder);
         task.setTaskId(Objects.requireNonNull(keyHolder.getKeys()).get("task_id").toString());

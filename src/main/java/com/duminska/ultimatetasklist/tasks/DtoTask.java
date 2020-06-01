@@ -15,7 +15,7 @@ public class DtoTask {
     private String userId;
     private String name;
     private String color;
-    private String priorityId;
+    private int priorityId;
     private String projectId;
     private String parentTaskId;
     private Date deadline;

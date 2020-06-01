@@ -77,7 +77,7 @@ public class SqlConstants {
             "insert into tasks (user_id, name, priority_id, " +
                     "project_id, parent_task_id, first_deadline_date," +
                     " recurring_time, times_postponed, is_done) " +
-                    "values (uuid(?),?,uuid(?),uuid(?),uuid(?),?,?,?,?)";
+                    "values (uuid(?), ?, ?,uuid(?),uuid(?),?,?,?,?)";
 
     public static final String TASK_GET_TASKS_BY_PROJECT =
             "select task_id, user_id, name, priority_id, " +

@@ -14,7 +14,7 @@ public class TaskMapper implements RowMapper<Task> {
                 .userId(rs.getString("user_id"))
                 .name(rs.getString("name"))
                 .color(rs.getString("color"))
-                .priorityId(rs.getString("priority_id"))
+                .priorityId(rs.getInt("priority_id"))
                 .projectId(rs.getString("project_id"))
                 .parentTaskId(rs.getString("parent_task_id"))
                 .deadline(rs.getDate("first_deadline_date"))
