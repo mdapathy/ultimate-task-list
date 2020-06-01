@@ -27,7 +27,7 @@ public class ProjectDao {
             PreparedStatement ps = connection
                     .prepareStatement(
                             "insert into projects (user_id, name) " +
-                                    "values (?, 'Inbox')", Statement.RETURN_GENERATED_KEYS);
+                                    "values (uuid(?), 'Inbox')", Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, userId);
             return ps;
         }, keyHolder);
@@ -43,7 +43,7 @@ public class ProjectDao {
             PreparedStatement ps = connection
                     .prepareStatement(
                             "insert into projects (user_id, name, parent_project_id, color, favourite) " +
-                                    "values (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+                                    "values (uuid(?), ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, project.getUserId());
             ps.setString(2, project.getName());
             ps.setString(3, project.getParentProjectId());
@@ -64,7 +64,7 @@ public class ProjectDao {
 
     void editProject(Project project) {
         jdbcTemplate.update("update projects  set name = ?," +
-                        " parent_project_id =? , color = ?, favourite = ? where project_id = ? and user_id = ?"
+                        " parent_project_id =? , color = ?, favourite = ? where project_id = uuid(?) and user_id = uuid(?)"
                 , project.getName(), project.getParentProjectId(),
                 project.getUserId(),
                 project.getColor(),

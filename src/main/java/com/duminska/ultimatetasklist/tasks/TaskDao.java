@@ -26,20 +26,20 @@ public class TaskDao {
 
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection
-                    .prepareStatement("insert into tasks (user_id, name, priority_id, project_id)\n" +
-                            "values (?, 'Complete this task', 4, ?)");
+                    .prepareStatement(
+                            "insert into tasks (user_id, name, priority_id, project_id)\n" +
+                                    "values (uuid(?), ?, 4, uuid(?));", Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, userId);
-            ps.setString(2, projectId);
-            ps.addBatch(
-                    "insert into tasks (user_id, name, priority_id, project_id)" +
-                            "values (?, 'Edit this task', 4, ?)");
+            ps.setString(2, "Complete this task");
+            ps.setString(3, projectId);
+            ps.executeUpdate();
             ps.setString(1, userId);
-            ps.setString(2, projectId);
-            ps.addBatch(
-                    "insert into tasks (user_id, name, priority_id, project_id)" +
-                            "values (?, 'Add new task', 4, ?)");
+            ps.setString(2, "Delete this task");
+            ps.setString(3, projectId);
+            ps.executeUpdate();
             ps.setString(1, userId);
-            ps.setString(2, projectId);
+            ps.setString(2, "Create a new task");
+            ps.setString(3, projectId);
             return ps;
         }, keyHolder);
 
@@ -62,7 +62,7 @@ public class TaskDao {
                             "insert into tasks (user_id, name, priority_id, " +
                                     "project_id, parent_task_id, first_deadline_date," +
                                     " recurring_time, times_postponed, is_done) " +
-                                    "values (?,?,?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+                                    "values (uuid(?),?,uuid(?),uuid(?),uuid(?),?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, task.getTaskId());
             ps.setString(2, task.getName());
             ps.setString(3, task.getPriorityId());
