@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public class TaskDao {
     JdbcTemplate jdbcTemplate;
@@ -17,24 +19,24 @@ public class TaskDao {
         //TODO
     }
 
-    void getAllTasksByProject(String projectId) {
+    List<Task> getAllTasksByProject(String projectId) {
+        return null; //TODO
+    }
+
+    void deleteTaskById(String taskId) {
         //TODO
     }
 
-    void deleteTaskById() {
+    void editTaskById(DtoTask task ) {
         //TODO
     }
 
-    void editTaskById() {
-        //TODO
-    }
-
-    Task addTask() {
+    Task addTask(DtoTask task) {
         //TODO
         return null;
     }
 
-    void markTaskAsDoneById() {
+    void markTaskAsDoneById(String taskId) {
         //TODO
     }
 

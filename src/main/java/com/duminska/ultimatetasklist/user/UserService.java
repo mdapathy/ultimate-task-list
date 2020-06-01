@@ -4,6 +4,7 @@ import com.duminska.ultimatetasklist.config.token.JwtTokenProvider;
 import com.duminska.ultimatetasklist.exception.ValidationException;
 import com.duminska.ultimatetasklist.mail.MailService;
 import com.duminska.ultimatetasklist.projects.ProjectService;
+import com.duminska.ultimatetasklist.tasks.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ public class UserService {
     private final UserDao userDao;
     private final MailService mailService;
     private final ProjectService projectService;
+    private final TaskService taskService;
 
 
     @Autowired
@@ -26,13 +28,15 @@ public class UserService {
                        BCryptPasswordEncoder bCryptPasswordEncoder,
                        JwtTokenProvider jwtTokenProvider,
                        MailService mailService,
-                       ProjectService projectService
+                       ProjectService projectService,
+                       TaskService taskService
     ) {
         this.userDao = userDao;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.mailService = mailService;
         this.projectService = projectService;
+        this.taskService = taskService;
     }
 
 
@@ -97,6 +101,8 @@ public class UserService {
 
         userDao.activateUser(user.getId());
         projectService.initProjectsForNewUser(user.getId());
+        taskService.initTasksForNewUser(user.getId());
+
     }
 
 

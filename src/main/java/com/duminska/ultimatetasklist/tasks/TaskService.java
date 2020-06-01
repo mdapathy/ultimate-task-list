@@ -5,6 +5,8 @@ import com.duminska.ultimatetasklist.projects.ProjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class TaskService {
 
@@ -19,32 +21,40 @@ public class TaskService {
         this.taskDao = taskDao;
     }
 
-    void initTasksForNewUser(String userId) {
+    public void initTasksForNewUser(String userId) {
         taskDao.initTasksForNewUser(userId);
     }
 
 
-    void getAllTasksByProject(String projectId, String userId) {
+    List<Task> getAllTasksByProject(String projectId, String userId) {
         if (projectService.getProjectById(projectId, userId) == null) {
             throw new ValidationException("No such project");
         }
-        taskDao.getAllTasksByProject(projectId);
+        return taskDao.getAllTasksByProject(projectId);
     }
 
-    void deleteTaskById(String projectId, String userId) {
+    void deleteTaskById(String taskId, String userId) {
+        if (!getTaskById(taskId).getUserId().equals(userId)) {
+            throw new ValidationException("Task belongs to another user");
 
+        }
+        taskDao.deleteTaskById(taskId);
     }
 
-    void editTaskById() {
+    void editTask() {
         //TODO
     }
 
-    void addTaskById() {
+    void addTask() {
         //TODO
     }
 
-    void markTaskAsDoneById() {
-        //TODO
+    void markTaskAsDoneById(String taskId, String userId) {
+        if (!getTaskById(taskId).getUserId().equals(userId)) {
+            throw new ValidationException("Task belongs to another user");
+
+        }
+        taskDao.markTaskAsDoneById(taskId);
     }
 
     Task getTaskById(String taskId) {
