@@ -1,6 +1,6 @@
 package com.duminska.ultimatetasklist.config.token;
 
-import com.duminska.ultimatetasklist.config.Constants;
+import com.duminska.ultimatetasklist.config.constants.Constants;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

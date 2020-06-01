@@ -1,5 +1,6 @@
 package com.duminska.ultimatetasklist.tasks;
 
+import com.duminska.ultimatetasklist.config.constants.SqlConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -26,20 +27,19 @@ public class TaskDao {
 
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection
-                    .prepareStatement("insert into tasks (user_id, name, priority_id, project_id)\n" +
-                            "values (?, 'Complete this task', 4, ?)");
+                    .prepareStatement(
+                            SqlConstants.TASK_INIT_TASKS, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, userId);
-            ps.setString(2, projectId);
-            ps.addBatch(
-                    "insert into tasks (user_id, name, priority_id, project_id)" +
-                            "values (?, 'Edit this task', 4, ?)");
+            ps.setString(2, "Complete this task");
+            ps.setString(3, projectId);
+            ps.executeUpdate();
             ps.setString(1, userId);
-            ps.setString(2, projectId);
-            ps.addBatch(
-                    "insert into tasks (user_id, name, priority_id, project_id)" +
-                            "values (?, 'Add new task', 4, ?)");
+            ps.setString(2, "Delete this task");
+            ps.setString(3, projectId);
+            ps.executeUpdate();
             ps.setString(1, userId);
-            ps.setString(2, projectId);
+            ps.setString(2, "Create a new task");
+            ps.setString(3, projectId);
             return ps;
         }, keyHolder);
 
@@ -47,10 +47,7 @@ public class TaskDao {
 
     void editTaskById(Task task) {
         jdbcTemplate.update(
-                "update tasks set name = ?, priority_id = ?, " +
-                        "project_id = ?, parent_task_id = ?, first_deadline_date = ?," +
-                        "recurring_time = ?, times_postponed = ?" +
-                        "where task_id=uuid(?)", task.getTaskId());
+                SqlConstants.TASK_EDIT_TASK, task.getTaskId());
     }
 
     Task addTask(Task task) {
@@ -59,10 +56,7 @@ public class TaskDao {
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection
                     .prepareStatement(
-                            "insert into tasks (user_id, name, priority_id, " +
-                                    "project_id, parent_task_id, first_deadline_date," +
-                                    " recurring_time, times_postponed, is_done) " +
-                                    "values (?,?,?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+                            SqlConstants.TASK_ADD_TASK, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, task.getTaskId());
             ps.setString(2, task.getName());
             ps.setString(3, task.getPriorityId());
@@ -80,27 +74,22 @@ public class TaskDao {
 
     List<Task> getAllTasksByProject(String projectId) {
         return jdbcTemplate.query(
-                "select task_id, user_id, name, priority_id, " +
-                        "project_id, parent_task_id, first_deadline_date," +
-                        " recurring_time, times_postponed, is_done, " +
-                        "priorities.color as color from tasks left join " +
-                        "priorities on tasks.priority_id = priorities.value " +
-                        "where project_id=uuid(?)", new Object[]{projectId},
+                SqlConstants.TASK_GET_TASKS_BY_PROJECT, new Object[]{projectId},
                 new TaskMapper()
         );
     }
 
     void deleteTaskById(String taskId) {
-        jdbcTemplate.update("delete from tasks  where task_id=uuid(?)", taskId);
+        jdbcTemplate.update(SqlConstants.TASK_DELETE_TASK, taskId);
     }
 
     void markTaskAsDoneById(String taskId) {
-        jdbcTemplate.update("UPDATE tasks set is_done = true where task_id=uuid(?)", taskId);
+        jdbcTemplate.update(SqlConstants.TASK_MARK_DONE_TASK, taskId);
     }
 
     Task getTaskById(String taskId) {
         return jdbcTemplate.queryForObject(
-                "select task_id, user_id, name, priority_id, project_id, parent_task_id, first_deadline_date, recurring_time, times_postponed, is_done, priorities.color as color from tasks left join priorities on tasks.priority_id = priorities.value where task_id=uuid(?)", new Object[]{taskId}, new TaskMapper()
+                SqlConstants.TASK_GET_BY_ID, new Object[]{taskId}, new TaskMapper()
         );
     }
 

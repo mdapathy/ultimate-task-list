@@ -1,6 +1,6 @@
 package com.duminska.ultimatetasklist.projects;
 
-import com.duminska.ultimatetasklist.config.Constants;
+import com.duminska.ultimatetasklist.config.constants.Constants;
 import com.duminska.ultimatetasklist.config.security.AuthenticationFacade;
 import com.duminska.ultimatetasklist.tasks.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;

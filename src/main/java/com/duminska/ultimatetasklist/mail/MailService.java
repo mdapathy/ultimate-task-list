@@ -1,6 +1,6 @@
 package com.duminska.ultimatetasklist.mail;
 
-import com.duminska.ultimatetasklist.config.Constants;
+import com.duminska.ultimatetasklist.config.constants.Constants;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import org.springframework.beans.factory.annotation.Value;
