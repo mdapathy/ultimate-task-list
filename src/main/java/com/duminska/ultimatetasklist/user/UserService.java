@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Calendar;
 import java.util.Date;
 
 @Service
@@ -78,13 +79,19 @@ public class UserService {
 
     void activateUser(String activationLink) {
         User user = userDao.getByActivationLink(activationLink);
-        System.out.println(activationLink);
         if (user == null) {
             throw new ValidationException(
                     "User with such activation link not found");
 
         } else if (user.isActivated()) {
             throw new ValidationException("User is already activated");
+        } else  {
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.DATE, -1);
+            if (user.getAccCreationDate().before(calendar.getTime())){
+                userDao.deleteUserById(user.getId());
+                throw new ValidationException("The link has expired. Sign up again.");
+            }
         }
 
         userDao.activateUser(user.getId());
