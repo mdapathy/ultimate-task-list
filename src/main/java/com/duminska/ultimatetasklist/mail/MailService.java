@@ -21,7 +21,7 @@ public class MailService {
                 .queryString("from", "UTaskList Support <support@ultimate-task-list.com>")
                 .queryString("to", email)
                 .queryString("subject", "Ultimate Task List account activation")
-                .queryString("text", String.format("Follow this link to activate your account %s", Constants.ACTIVATION_URL, link))
+                .queryString("text", String.format("Follow this link to activate your account %s%s", Constants.ACTIVATION_URL, link))
                 .asJson().getBody();
 
     }
