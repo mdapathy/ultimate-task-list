@@ -17,4 +17,29 @@ public class TaskDao {
         //TODO
     }
 
+    void getAllTasksByProject(String projectId) {
+        //TODO
+    }
+
+    void deleteTaskById() {
+        //TODO
+    }
+
+    void editTaskById() {
+        //TODO
+    }
+
+    Task addTask() {
+        //TODO
+        return null;
+    }
+
+    void markTaskAsDoneById() {
+        //TODO
+    }
+
+    Task getTaskById(String taskId) {
+        return null; //TODO
+    }
+
 }

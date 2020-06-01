@@ -3,9 +3,14 @@ package com.duminska.ultimatetasklist.projects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
+import java.util.Objects;
 
 @Repository
 public class ProjectDao {
@@ -23,9 +28,24 @@ public class ProjectDao {
 
     }
 
-    Project addProject(Project project) {
-        return null;    //TODO
+    DtoProject addProject(DtoProject project) {
+        KeyHolder keyHolder = new GeneratedKeyHolder();
 
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection
+                    .prepareStatement(
+                            "insert into projects (user_id, name, parent_project_id, color, favourite) " +
+                                    "values (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, project.getUserId());
+            ps.setString(2, project.getName());
+            ps.setString(3, project.getParentProjectId());
+            ps.setString(4, project.getColor());
+            ps.setBoolean(5, project.isFavourite());
+
+            return ps;
+        }, keyHolder);
+        project.setProjectId(Objects.requireNonNull(keyHolder.getKeys()).get("project_id").toString());
+        return project;
     }
 
     void deleteProject(String projectId) {
@@ -34,8 +54,14 @@ public class ProjectDao {
 
     }
 
-    Project editProject(Project project) {
-        return null;    //TODO
+    void editProject(DtoProject project) {
+        jdbcTemplate.update("update projects  set name = ?," +
+                        " parent_project_id =? , color = ?, favourite = ? where project_id = ? and user_id = ?"
+                , project.getName(), project.getParentProjectId(),
+                project.getUserId(),
+                project.getColor(),
+                project.isFavourite(),
+                project.getProjectId(), project.getUserId());
 
     }
 
