@@ -41,7 +41,6 @@ public class TaskDao {
             ps.setString(1, userId);
             ps.setString(2, "Create a new task");
             ps.setString(3, projectId);
-            ps.executeUpdate();
             return ps;
         }, keyHolder);
 
