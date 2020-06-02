@@ -42,7 +42,7 @@ public class UserService {
 
     User signUpUser(DtoUserAuth user) {
         if (userDao.getByEmail(user.getEmail()) != null) {
-            throw new ValidationException("User with such email already exist");
+            throw new ValidationException("User with such email already exists");
         }
 
         User toSave = User.builder()
