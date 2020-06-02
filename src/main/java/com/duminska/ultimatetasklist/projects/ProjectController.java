@@ -66,7 +66,7 @@ public class ProjectController {
     }
 
 
-    @DeleteMapping("/{projectId}")
+    @PostMapping("/{projectId}/delete")
     public ResponseEntity<?> deleteProject(@PathVariable("projectId") String id) {
         projectService.deleteProject(id, authenticationFacade.getUserId());
         return new ResponseEntity<>(HttpStatus.OK);
