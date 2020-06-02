@@ -26,6 +26,7 @@ public class DtoTask {
 
     public static Task toTask(DtoTask dtoTask) {
         return Task.builder()
+                .taskId(dtoTask.getTaskId())
                 .color(dtoTask.getColor())
                 .deadline(dtoTask.getDeadline())
                 .isDone(dtoTask.isDone())
@@ -43,6 +44,7 @@ public class DtoTask {
 
     public static DtoTask fromTask(Task task) {
         return DtoTask.builder()
+                .taskId(task.getTaskId())
                 .color(task.getColor())
                 .deadline(task.getDeadline())
                 .isDone(task.isDone())
