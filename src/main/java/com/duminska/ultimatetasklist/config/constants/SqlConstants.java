@@ -38,7 +38,7 @@ public class SqlConstants {
 
     public static final String PROJECT_ADD_PROJECT =
             "insert into projects (user_id, name, parent_project_id, color, favourite) " +
-                    "values (uuid(?), ?, ?, ?, ?)";
+                    "values (uuid(?), ?, uuid(?), ?, ?)";
 
 
     public static final String PROJECT_DELETE_PROJECT =
@@ -86,6 +86,22 @@ public class SqlConstants {
                     "priorities.color as color from tasks left join " +
                     "priorities on tasks.priority_id = priorities.value " +
                     "where project_id=uuid(?)";
+
+    public static final String TASK_GET_TASKS_BY_PROJECT_COMPLETED =
+            "select task_id, user_id, name, priority_id, " +
+                    "project_id, parent_task_id, first_deadline_date," +
+                    " recurring_time, times_postponed, is_done, " +
+                    "priorities.color as color from tasks left join " +
+                    "priorities on tasks.priority_id = priorities.value " +
+                    "where project_id=uuid(?)  and is_done=true";
+
+    public static final String TASK_GET_TASKS_BY_PROJECT_UNCOMPLETED =
+            "select task_id, user_id, name, priority_id, " +
+                    "project_id, parent_task_id, first_deadline_date," +
+                    " recurring_time, times_postponed, is_done, " +
+                    "priorities.color as color from tasks left join " +
+                    "priorities on tasks.priority_id = priorities.value " +
+                    "where project_id=uuid(?) and is_done=false";
 
     public static final String TASK_DELETE_TASK =
             "delete from tasks  where task_id=uuid(?)";

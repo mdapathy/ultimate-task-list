@@ -37,14 +37,14 @@ public class TaskController {
         return new ResponseEntity<>(taskService.addTask(dtoTask, authenticationFacade.getUserId()), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{taskId}/delete")
+    @PostMapping("/{taskId}/delete")
     public ResponseEntity<?> deleteTask(@PathVariable String taskId) {
         taskService.deleteTaskById(taskId, authenticationFacade.getUserId());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
 
-    @PutMapping("/{taskId}/mark-done")
+    @PostMapping("/{taskId}/mark-done")
     public ResponseEntity<?> markTaskAsDoneById(@PathVariable String taskId) {
         taskService.markTaskAsDoneById(taskId, authenticationFacade.getUserId());
         return new ResponseEntity<>(HttpStatus.OK);
