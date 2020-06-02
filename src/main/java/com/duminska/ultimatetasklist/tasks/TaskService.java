@@ -33,6 +33,24 @@ public class TaskService {
         return taskDao.getAllTasksByProject(projectId);
     }
 
+
+
+    public List<Task> getTasksByProjectCompleted(String projectId, String userId) {
+        if (projectService.getProjectById(projectId, userId) == null) {
+            throw new ValidationException("No such project");
+        }
+        return taskDao.getTasksByProjectCompleted(projectId);
+    }
+
+
+
+    public List<Task> getAllTasksByProjectUnCompleted(String projectId, String userId) {
+        if (projectService.getProjectById(projectId, userId) == null) {
+            throw new ValidationException("No such project");
+        }
+        return taskDao.getAllTasksByProjectUnCompleted(projectId);
+    }
+
     void deleteTaskById(String taskId, String userId) {
         if (!getTaskById(taskId).getUserId().equals(userId)) {
             throw new ValidationException("Task belongs to another user");

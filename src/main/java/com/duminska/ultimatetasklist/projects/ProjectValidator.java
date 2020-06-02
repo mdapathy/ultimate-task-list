@@ -9,9 +9,8 @@ public class ProjectValidator {
 
     public static void validate(DtoProject project) throws ValidationException {
         validateNotEmptyProperty(project.getName(), "project name");
+        System.out.println(project.getName());
         validateNotEmptyProperty(project.getUserId(), "user id");
-        validateNotEmptyProperty(project.getColor(), "color");
-        validateNotEmptyProperty(project.getParentProjectId(), "parent project id");
     }
 
     private static void validateNotEmptyProperty(Object value, String propertyName) {

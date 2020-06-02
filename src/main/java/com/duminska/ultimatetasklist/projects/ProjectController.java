@@ -33,6 +33,7 @@ public class ProjectController {
                 , HttpStatus.OK);
     }
 
+
     @GetMapping("/get-favourite")
     public ResponseEntity<?> getFavouriteProjects() {
         return new ResponseEntity<>(
@@ -49,7 +50,7 @@ public class ProjectController {
 
 
     @PostMapping("/create")
-    public ResponseEntity<?> addProject(DtoProject dtoProject) {
+    public ResponseEntity<?> addProject(@RequestBody DtoProject dtoProject) {
         ProjectValidator.validate(dtoProject);
         return new ResponseEntity<>(
                 projectService.addProject(dtoProject, authenticationFacade.getUserId())
@@ -58,7 +59,7 @@ public class ProjectController {
 
 
     @PutMapping("/edit")
-    public ResponseEntity<?> editProject(DtoProject dtoProject) {
+    public ResponseEntity<?> editProject(@RequestBody DtoProject dtoProject) {
         ProjectValidator.validate(dtoProject);
         projectService.editProject(dtoProject, authenticationFacade.getUserId());
         return new ResponseEntity<>(HttpStatus.OK);
@@ -72,9 +73,19 @@ public class ProjectController {
     }
 
 
-    @GetMapping("/{projectId}/tasks")
+    @GetMapping("/{projectId}/tasks/all")
     public ResponseEntity<?> getAllTasksByProject(@PathVariable String projectId) {
         return new ResponseEntity<>(taskService.getAllTasksByProject(projectId, authenticationFacade.getUserId()), HttpStatus.OK);
+    }
+
+    @GetMapping("/{projectId}/tasks/completed")
+    public ResponseEntity<?> getTasksByProjectCompleted(@PathVariable String projectId) {
+        return new ResponseEntity<>(taskService.getTasksByProjectCompleted(projectId, authenticationFacade.getUserId()), HttpStatus.OK);
+    }
+
+    @GetMapping("/{projectId}/tasks/uncompleted")
+    public ResponseEntity<?> getAllTasksByProjectUnCompleted(@PathVariable String projectId) {
+        return new ResponseEntity<>(taskService.getAllTasksByProjectUnCompleted(projectId, authenticationFacade.getUserId()), HttpStatus.OK);
     }
 
 

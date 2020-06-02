@@ -94,6 +94,24 @@ public class TaskDao {
         );
     }
 
+
+    public List<Task> getTasksByProjectCompleted(String projectId) {
+        return jdbcTemplate.query(
+                SqlConstants.TASK_GET_TASKS_BY_PROJECT_COMPLETED, new Object[]{projectId},
+                new TaskMapper()
+        );
+    }
+
+
+
+    public List<Task> getAllTasksByProjectUnCompleted(String projectId) {
+        return jdbcTemplate.query(
+                SqlConstants.TASK_GET_TASKS_BY_PROJECT_UNCOMPLETED, new Object[]{projectId},
+                new TaskMapper()
+        );
+    }
+
+
     void deleteTaskById(String taskId) {
         jdbcTemplate.update(SqlConstants.TASK_DELETE_TASK, taskId);
     }
